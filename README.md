@@ -1,0 +1,2 @@
+# live2dStudy
+通过查看官方的Demo学习live2d是如何使用的
