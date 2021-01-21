@@ -2,6 +2,7 @@ import { Live2DCubismFramework as csmvector } from '@framework/type/csmvector';
 import Csm_csmVector = csmvector.csmVector;
 import csmVector_iterator = csmvector.iterator;
 import { gl } from './lappdelegate';
+import { TextureInfo } from './TextureInfo';
 
 /**
  * 材质管理类
@@ -171,16 +172,4 @@ export class LAppTextureManager {
   }
 
   _textures: Csm_csmVector<TextureInfo>;
-}
-
-/**
- * 画像情報構造体，图像信息结构
- */
-export class TextureInfo {
-  img: HTMLImageElement; // 画像，图像
-  id: WebGLTexture = null; // 材质
-  width = 0; // 宽
-  height = 0; // 高
-  usePremultply: boolean; // 是否进行premult处理
-  fileName: string; // 文件名
 }

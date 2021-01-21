@@ -13,7 +13,7 @@ import { TouchManager } from './touchmanager';
 import { LAppLive2DManager } from './lapplive2dmanager';
 import { LAppDelegate, canvas, gl } from './lappdelegate';
 import { LAppSprite } from './lappsprite';
-import { TextureInfo } from './lapptexturemanager';
+import { TextureInfo } from './TextureInfo';
 import { LAppPal } from './lapppal';
 import * as LAppDefine from './lappdefine';
 
@@ -101,48 +101,61 @@ export class LAppView {
   public render(): void {
     gl.useProgram(this._programId);
 
+    //如果有背景，则生成背景的阴影
     if (this._back) {
       this._back.render(this._programId);
     }
+    //如果有齿轮则生成齿轮的阴影
     if (this._gear) {
       this._gear.render(this._programId);
     }
 
+    //清空缓存
     gl.flush();
 
+    //初始化模型管理类
     const live2DManager: LAppLive2DManager = LAppLive2DManager.getInstance();
 
     live2DManager.onUpdate();
   }
 
   /**
-   * 进行图像初始化。
+   * 进行图像初始化，初始化背景、齿轮图标、阴影
    */
   public initializeSprite(): void {
     const width: number = canvas.width;
     const height: number = canvas.height;
 
+    // 获取材质管理信息
     const textureManager = LAppDelegate.getInstance().getTextureManager();
+    // 获取live2d资源路径
     const resourcesPath = LAppDefine.ResourcesPath;
 
+    //背景路径
     let imageName = '';
 
     // 初始化图像背景
     imageName = LAppDefine.BackImageName;
 
     // 由于异步，创建回调函数
+    //初始化背景材质
     const initBackGroundTexture = (textureInfo: TextureInfo): void => {
+      //x,y画板的中心
       const x: number = width * 0.5;
       const y: number = height * 0.5;
-
+      //fwidth背景的宽的2倍
       const fwidth = textureInfo.width * 2.0;
+      //背景的高的0.95倍
       const fheight = height * 0.95;
+      //可以理解成在canvas上放一个矩形
       this._back = new LAppSprite(x, y, fwidth, fheight, textureInfo.id);
     };
 
     textureManager.createTextureFromPngFile(
+      //  根目录下的背景图片文件
       resourcesPath + imageName,
       false,
+      //  可以理解成在canvas上面放一个矩形
       initBackGroundTexture
     );
 
@@ -153,6 +166,7 @@ export class LAppView {
       const y = height - textureInfo.height * 0.5;
       const fwidth = textureInfo.width;
       const fheight = textureInfo.height;
+      //在canvas右上角放置一个齿轮图标
       this._gear = new LAppSprite(x, y, fwidth, fheight, textureInfo.id);
     };
 

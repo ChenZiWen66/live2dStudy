@@ -106,7 +106,7 @@ export class LAppDelegate {
       canvas.onmouseup = onClickEnded;
     }
 
-    // AppView初始化
+    // 初始化AppView
     this._view.initialize();
 
     // Cubism SDK初始化
@@ -268,18 +268,25 @@ export class LAppDelegate {
    */
   public initializeCubism(): void {
     // setup cubism
+    // 设置log在控制台输出
     this._cubismOption.logFunction = LAppPal.printMessage;
+    // 设置log等级
     this._cubismOption.loggingLevel = LAppDefine.CubismLoggingLevel;
+    //框架启动
     Csm_CubismFramework.startUp(this._cubismOption);
 
     // initialize cubism
+    //框架初始化
     Csm_CubismFramework.initialize();
 
     // load model
+    //初始化模型管理类
     LAppLive2DManager.getInstance();
 
+    //更新时间
     LAppPal.updateTime();
 
+    //初始化背景和齿轮图片
     this._view.initializeSprite();
   }
 

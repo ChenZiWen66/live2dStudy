@@ -144,6 +144,7 @@ export class LAppLive2DManager {
       const model: LAppModel = this.getModel(i);
       projection = saveProjection.clone();
 
+      //更新模型
       model.update();
       model.draw(projection); // 参照渡しなのでprojectionは変質する。
     }

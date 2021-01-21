@@ -37,7 +37,7 @@ import CubismDefaultParameterId = cubismdefaultparameterid;
 
 import { LAppPal } from './lapppal';
 import { gl, canvas, frameBuffer, LAppDelegate } from './lappdelegate';
-import { TextureInfo } from './lapptexturemanager';
+import { TextureInfo } from './TextureInfo';
 import * as LAppDefine from './lappdefine';
 import 'whatwg-fetch';
 
@@ -447,21 +447,26 @@ export class LAppModel extends CubismUserModel {
    * 更新
    */
   public update(): void {
+    //如果当前状态不是完成设置，则返回
     if (this._state != LoadStep.CompleteSetup) return;
-
+    //获取与上一帧的时间间隔
     const deltaTimeSeconds: number = LAppPal.getDeltaTime();
+    //帧的累积时间增加
     this._userTimeSeconds += deltaTimeSeconds;
 
+    //拖动操作
     this._dragManager.update(deltaTimeSeconds);
     this._dragX = this._dragManager.getX();
     this._dragY = this._dragManager.getY();
 
     // モーションによるパラメータ更新の有無
-    //是否更新动作参数
+    //是否更新动作参数（是否在做动作）
     let motionUpdated = false;
 
     //--------------------------------------------------------------------------
     this._model.loadParameters(); // 前回セーブされた状態をロード,装入上次保存的状态
+    //如果动作没有做完，就结合当前帧数来更新动作
+    //如果动作做完了，就做一个随机的待机动作
     if (this._motionManager.isFinished()) {
       // モーションの再生がない場合、待機モーションの中からランダムで再生する
       // 在没有动作的再生的情况下，从待机动作中随机再生
@@ -475,10 +480,11 @@ export class LAppModel extends CubismUserModel {
         deltaTimeSeconds
       ); // モーションを更新,更新动作
     }
+    // 保存当前状态
     this._model.saveParameters(); // 状態を保存,保存状态
     //--------------------------------------------------------------------------
 
-    // 眨眼
+    // 眨眼（如果当前没有做动作，并且有眨眼参数，就可以眨眼）
     if (!motionUpdated) {
       if (this._eyeBlink != null) {
         // 没有更新主动作时
@@ -486,6 +492,7 @@ export class LAppModel extends CubismUserModel {
       }
     }
 
+    //如果有表情参数，就可以做表情
     if (this._expressionManager != null) {
       this._expressionManager.updateMotion(this._model, deltaTimeSeconds); // 表情参数更新（相対変化）
     }
@@ -509,18 +516,17 @@ export class LAppModel extends CubismUserModel {
     this._model.addParameterValueById(this._idParamEyeBallX, this._dragX); // -1から1の値を加える,-1到1
     this._model.addParameterValueById(this._idParamEyeBallY, this._dragY);
 
-    // 呼吸等
+    // 呼吸等(有呼吸参数就开始呼吸)
     if (this._breath != null) {
       this._breath.updateParameters(this._model, deltaTimeSeconds);
     }
 
-    // 物理运算设置
+    // 物理运算(有物理运算就开始运算)
     if (this._physics != null) {
       this._physics.evaluate(this._model, deltaTimeSeconds);
     }
 
-    // リップシンクの設定
-    //嘴巴设置
+    //嘴唇动(有唇动参数就动)
     if (this._lipsync) {
       //实时进行嘴巴动作时，从系统中获取音量，在0~1的范围内输入值。
       const value = 0; // リアルタイムでリップシンクを行う場合、システムから音量を取得して、0~1の範囲で値を入力します。
@@ -530,7 +536,7 @@ export class LAppModel extends CubismUserModel {
       }
     }
 
-    // 姿势设定
+    // 姿势(如果有pose就摆pose)
     if (this._pose != null) {
       this._pose.updateParameters(this._model, deltaTimeSeconds);
     }
